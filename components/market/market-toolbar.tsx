@@ -3,6 +3,7 @@
 import { IconRenderer } from "@/assets/icons/iconRenderer";
 import * as m from "motion/react-m";
 import { useId } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FILTER_LABELS, SORT_LABELS } from "@/lib/market/query";
 import { cn } from "@/lib/utils/cn";
 import { CHANGE_FILTERS, SORT_KEYS, type ChangeFilter, type MarketQuery, type SortKey } from "@/types/market";
@@ -53,18 +54,18 @@ export function MarketToolbar({ query, onChange }: MarketToolbarProps) {
           <label htmlFor={sortId} className="shrink-0 text-xs text-muted-foreground">
             Sort by
           </label>
-          <select
-            id={sortId}
-            value={query.sort}
-            onChange={(event) => onChange({ sort: event.target.value as SortKey })}
-            className="h-9 min-w-0 flex-1 cursor-pointer rounded-md border border-input bg-card px-2.5 text-sm sm:flex-none"
-          >
-            {SORT_KEYS.map((key) => (
-              <option key={key} value={key}>
-                {SORT_LABELS[key]}
-              </option>
-            ))}
-          </select>
+          <Select value={query.sort} onValueChange={(sort) => onChange({ sort: sort as SortKey })}>
+            <SelectTrigger id={sortId} className="min-w-0 flex-1 sm:w-44 sm:flex-none">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SORT_KEYS.map((key) => (
+                <SelectItem key={key} value={key}>
+                  {SORT_LABELS[key]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

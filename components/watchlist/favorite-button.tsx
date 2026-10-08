@@ -24,7 +24,8 @@ interface FavoriteButtonProps {
  * Subscribes to its own boolean slice of the watchlist, so toggling one asset
  * re-renders exactly one button — the table rows above it stay untouched.
  * Disabled until persisted state is hydrated, so an early click can't be
- * overwritten by the stored list.
+ * overwritten by the stored list. Until then the content is hidden behind a
+ * pulsing placeholder, so a watched asset never flashes as "not in watchlist".
  */
 export function FavoriteButton({ id, name, withLabel = false, className }: FavoriteButtonProps) {
   const dispatch = useAppDispatch();
@@ -53,7 +54,8 @@ export function FavoriteButton({ id, name, withLabel = false, className }: Favor
       whileTap={{ scale: 0.88 }}
       onClick={handleClick}
       disabled={!hydrated}
-      aria-pressed={active}
+      aria-busy={!hydrated}
+      aria-pressed={hydrated ? active : undefined}
       aria-label={withLabel ? undefined : `Watchlist ${name}`}
       className={cn(
         "inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg text-sm font-medium transition-colors disabled:cursor-default",
@@ -61,6 +63,7 @@ export function FavoriteButton({ id, name, withLabel = false, className }: Favor
           ? "h-9 border border-border bg-card px-3 hover:bg-muted"
           : "size-8 text-muted-foreground hover:bg-muted hover:text-foreground",
         active && "text-warning",
+        !hydrated && "animate-pulse bg-muted",
         className,
       )}
     >
@@ -69,11 +72,11 @@ export function FavoriteButton({ id, name, withLabel = false, className }: Favor
         initial={hydrated ? { scale: 0.5, rotate: -30 } : false}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 500, damping: 18 }}
-        className="inline-flex"
+        className={cn("inline-flex", !hydrated && "invisible")}
       >
         <IconRenderer name={active ? "star_filled" : "star_outlined"} aria-hidden className="size-4" />
       </m.span>
-      {withLabel && <span className="text-foreground">{active ? "In watchlist" : "Add to watchlist"}</span>}
+      {withLabel && <span className={cn("text-foreground", !hydrated && "invisible")}>{active ? "In watchlist" : "Add to watchlist"}</span>}
     </m.button>
   );
 }

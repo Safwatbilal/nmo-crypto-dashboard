@@ -3,6 +3,9 @@ import type { ComponentType, SVGProps } from 'react'
 import { ArrowLeftOutlined } from '../arrow_left_outlined'
 import { ArrowRightOutlined } from '../arrow_right_outlined'
 import { BinOutlined } from '../bin_outlined'
+import { CheckOutlined } from '../check_outlined'
+import { ChevronDownOutlined } from '../chevron_down_outlined'
+import { ChevronUpOutlined } from '../chevron_up_outlined'
 import { CloseOutlined } from '../close_outlined'
 import { CurrencyUsd } from '../currency_usd'
 import { ExternalOutlined } from '../external_outlined'
@@ -33,6 +36,9 @@ const icons: Record<iconName, ComponentType<SVGProps<SVGSVGElement>>> = {
   arrow_left_outlined: ArrowLeftOutlined,
   arrow_right_outlined: ArrowRightOutlined,
   bin_outlined: BinOutlined,
+  check_outlined: CheckOutlined,
+  chevron_down_outlined: ChevronDownOutlined,
+  chevron_up_outlined: ChevronUpOutlined,
   close_outlined: CloseOutlined,
   currency_usd: CurrencyUsd,
   external_outlined: ExternalOutlined,
@@ -71,7 +77,7 @@ export function IconRenderer({ name, className, width, height, color, ...props }
         width="100%"
         height="100%"
         color={color ?? 'currentColor'}
-        className={cn('block size-full', className)}
+        className="block size-full"
       />
     </span>
   )
