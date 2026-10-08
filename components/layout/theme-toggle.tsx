@@ -2,17 +2,15 @@
 
 import { IconRenderer } from "@/assets/icons/iconRenderer";
 import { Button } from "@/components/ui/button";
-import { useThemeStore } from "@/store/use-theme-store";
+import { toggleTheme } from "@/hooks/use-theme";
 
 const iconBase = "absolute size-[1.1rem] transition-all duration-300";
 
 /**
  * The icon states are driven by the `dark:` variant rather than store state, so
- * the button renders correctly before the store hydrates and never flashes.
+ * the button renders correctly before hydration and never flashes.
  */
 export function ThemeToggle() {
-  const toggleTheme = useThemeStore((s) => s.toggleTheme);
-
   return (
     <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle dark mode">
       <span className="relative flex size-[1.1rem] items-center justify-center">

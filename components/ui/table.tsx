@@ -19,16 +19,6 @@ export function TableBody({ className, ...props }: ComponentProps<"tbody">) {
   return <tbody data-slot="table-body" className={cn("[&_tr:last-child]:border-0", className)} {...props} />;
 }
 
-export function TableFooter({ className, ...props }: ComponentProps<"tfoot">) {
-  return (
-    <tfoot
-      data-slot="table-footer"
-      className={cn("border-t border-border bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
-      {...props}
-    />
-  );
-}
-
 /** Shared row classes, so animated rows (`m.tr`) can match `TableRow`. */
 export const tableRowClassName =
   "border-b border-border transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted";

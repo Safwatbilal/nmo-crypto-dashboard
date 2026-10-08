@@ -7,7 +7,6 @@ declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
     /** Applied to both the header and body cells (e.g. responsive `hidden md:table-cell`). */
     className?: string;
-    headerClassName?: string;
     cellClassName?: string;
     /** Render body cells as `<th scope="row">` — use for the column that names the row. */
     rowHeader?: boolean;

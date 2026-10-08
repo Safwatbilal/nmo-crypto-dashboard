@@ -1,5 +1,4 @@
 export type iconName =
-  | 'activity_log_outlined'
   | 'arrow_left_outlined'
   | 'arrow_right_outlined'
   | 'bin_outlined'

@@ -1,11 +1,11 @@
 "use client";
 
 import { Toaster as Sonner, type ToasterProps } from "sonner";
-import { useThemeStore } from "@/store/use-theme-store";
+import { useTheme } from "@/hooks/use-theme";
 
-/** shadcn/ui Sonner toaster, themed from the app's own theme store instead of next-themes. */
+/** shadcn/ui Sonner toaster, themed from the `dark` class on <html> instead of next-themes. */
 export function Toaster(props: ToasterProps) {
-  const theme = useThemeStore((state) => state.theme);
+  const theme = useTheme();
 
   return (
     <Sonner

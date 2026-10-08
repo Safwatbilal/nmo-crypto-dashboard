@@ -11,7 +11,6 @@ import {
   watchlistToggled,
 } from "@/store/features/watchlistSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { playRemove, playTick } from "@/lib/audio/tick";
 import { cn } from "@/lib/utils/cn";
 
 interface FavoriteButtonProps {
@@ -42,10 +41,8 @@ export function FavoriteButton({ id, name, withLabel = false, className }: Favor
     }
     dispatch(watchlistToggled(id));
     if (active) {
-      playRemove();
       toast(`${name} removed from watchlist`);
     } else {
-      playTick();
       toast.success(`${name} added to watchlist`);
     }
   };

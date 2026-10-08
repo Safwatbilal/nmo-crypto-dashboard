@@ -16,7 +16,6 @@ import { TrendBadge } from "@/components/ui/trend-badge";
 import { useLiveTicker } from "@/hooks/use-live-ticker";
 import { useWatchlistMarkets } from "@/hooks/use-watchlist-markets";
 import { toast } from "sonner";
-import { playRemove } from "@/lib/audio/tick";
 import { getLiveSymbolForCoin } from "@/lib/live/symbols";
 import { formatCompactUsd, formatPrice } from "@/lib/utils/format";
 import {
@@ -108,13 +107,11 @@ export function WatchlistView() {
 
   const remove = (id: string) => {
     dispatch(watchlistRemoved(id));
-    playRemove();
     toast(`${coins.get(id)?.name ?? id} removed from watchlist`);
   };
 
   const clearAll = () => {
     dispatch(watchlistCleared());
-    playRemove();
     toast("Watchlist cleared");
   };
 

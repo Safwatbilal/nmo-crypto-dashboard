@@ -2,7 +2,7 @@
 
 A compact, production-minded crypto dashboard: discover the top 250 assets, search/filter/sort them, open a detail page with a 7-day chart, keep a personal watchlist and follow a live Binance price stream.
 
-**Live URL:** _<add after deploying — see [Deployment](#deployment)>_
+**Live URL:** https://nmo-crypto-dashboard.vercel.app · **Repository:** https://github.com/Safwatbilal/nmo-crypto-dashboard
 
 | Route | What | Rendering |
 | --- | --- | --- |
@@ -20,6 +20,8 @@ A compact, production-minded crypto dashboard: discover the top 250 assets, sear
 - **Redux Toolkit 2** + React Redux 9 — shared client state only
 - **Motion** (Framer Motion, `motion/react`) via `LazyMotion` + `m.*`
 - **Tailwind CSS v4** with design tokens (oklch palette, light/dark), `cva` for component variants
+- **TanStack Table** (headless) behind a presentational `DataTable` (column/row model; responsive table ↔ cards). Filtering, sorting and paging stay in `lib/market/query.ts` because the URL owns them.
+- **sonner** toasts for watchlist feedback · **nextjs-toploader** navigation progress bar
 - Tredro `IconRenderer` icons (`assets/icons`), `next/font` (Geist), `next/image`
 - **Vitest** unit tests · ESLint (`eslint-config-next`, React Compiler lint rules) · GitHub Actions CI
 
@@ -44,10 +46,12 @@ All optional; no secrets are committed (see `.env.example`).
 
 | Variable | Scope | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | public | Absolute base for canonical URLs, OG, sitemap. Falls back to `VERCEL_PROJECT_PRODUCTION_URL`, then `http://localhost:3000`. |
+| `NEXT_PUBLIC_SITE_URL` | public | Absolute base for canonical URLs, OG, sitemap. Falls back to the production domain (`https://nmo-crypto-dashboard.vercel.app`) in production/Vercel builds, otherwise `http://localhost:3000`. Vercel preview deployments are always `noindex`. |
 | `COINGECKO_API_KEY` | **server only** | Free CoinGecko *Demo* key, sent as `x-cg-demo-api-key`. Raises the rate limit; never reaches the browser. |
 | `COINGECKO_API_BASE_URL` | server only | Override the REST base URL. |
 | `NEXT_PUBLIC_BINANCE_WS_URL` | public | WebSocket endpoint (default `wss://data-stream.binance.vision/ws`). |
+| `GOOGLE_SITE_VERIFICATION` | server only | Google Search Console "HTML tag" verification value (not a secret). |
+| `BING_SITE_VERIFICATION` | server only | Bing Webmaster Tools `msvalidate.01` value (not a secret). |
 
 ## Data sources
 
@@ -124,7 +128,7 @@ Deliberately **not** in Redux:
 - **Market/asset data**: server-fetched and passed as props. Next's cache primitives are enough, so a client cache would duplicate it.
 - **Live ticks**: ~1 update/s per symbol would rerun every `useSelector` in the app. They live in `PriceStream` (below).
 - **Explorer filters**: owned by the URL (shareable, SSR-able) plus local state, with one consumer.
-- **Theme**: must apply before hydration (inline script), and it has one consumer.
+- **Theme**: must apply before hydration (inline script), so the `dark` class on `<html>` is the source of truth. Its two consumers (theme toggle, toaster) read it through `useTheme()` (`useSyncExternalStore` over a `MutationObserver`), so no store has to mirror it and no second state library is needed.
 
 **Selectors** return primitives or stored references (`selectIsInWatchlist(state, id)` → boolean), so none needs `createSelector`. The one derived collection (filtered + sorted list) is computed with `useMemo` where it's used.
 
@@ -155,13 +159,15 @@ Memoization is used only where the data flow gives it a concrete job:
 | `MarketExplorer` | `useMemo` filter + sort (250 items) | Otherwise it runs on every render (keystrokes, watchlist toggles). The watchlist `Set` is a dependency **only** when the Watchlist filter is active, so starring in the "All" view doesn't recompute. |
 | `MarketExplorer` | `useDeferredValue(query.q)` | The input stays urgent and filtering renders at lower priority. Together with the memoized table, typing never waits on table work. |
 | `MarketTable` | `React.memo` | During urgent keystroke renders its props (deferred page of results) are unchanged, so it skips. |
-| `MarketRow` | `React.memo` | `coin` objects keep identity across filter/sort changes, so rows that stay visible (e.g. "bi" → "bit") skip re-rendering. |
-| `MarketPagination` | `React.memo` + `useCallback(goToPage)` | Stable callback lets pagination skip every keystroke render. |
+| `DataTableRow` | `React.memo` | TanStack keeps row objects stable while `data` is unchanged, so rows skip re-rendering when only the shell (title, toolbar) changes. |
+| `DataTablePagination` | `React.memo` + `useCallback(goToPage)` in `MarketExplorer` | Stable callback lets pagination skip every keystroke render. |
 | `LiveTickerCard` | `React.memo` + `useCallback(toggle)` | Adding or removing one symbol doesn't re-render the other cards. Each card owns its tick subscription. |
 | `useLiveTicker` | `useCallback(subscribe)` | `useSyncExternalStore` resubscribes when `subscribe` changes identity, which here would mean an UNSUBSCRIBE/SUBSCRIBE round-trip per render. |
 | `FavoriteButton` | own `useAppSelector` boolean | Toggling a star re-renders exactly one button, not the table. |
 
 **Intentionally not memoized:** `TrendBadge`, `CoinAvatar`, toolbar handlers (the toolbar re-renders on every keystroke anyway), stat cards and the chart (Server Components with no client re-render), and slice selectors (they return primitives).
+
+**React Compiler is not enabled.** All memoization above is explicit. ESLint's `react-hooks/incompatible-library` rule flags `useReactTable` because the compiler can't memoize TanStack's function-returning API. Since the compiler is off, that rule is suppressed on that one line with a comment explaining why.
 
 Other measures:
 - **Client boundaries are leaves.** Pages, stats, top movers, the chart, the asset page and layout chrome are Server Components. The `"use client"` files are interactive leaves only.
@@ -169,6 +175,7 @@ Other measures:
 - **Motion:** `LazyMotion` + `domAnimation` with `m.*` components (strict mode) instead of the full `motion` component.
 - **Controlled DOM:** 20 rows per page. Less important columns are hidden with responsive classes rather than rendering a second mobile layout.
 - **Images:** `next/image` with fixed sizes and `remotePatterns`. Only the asset logo is preloaded.
+- **Icons:** `IconRenderer` is a Server Component over a static map of inline SVG components, so icons are in the server HTML. There's no client chunk per icon and no empty placeholder before hydration.
 - **Payload:** upstream responses are mapped to slim domain objects before reaching client props.
 - Server-side `fetch` retries 429/5xx once with `Retry-After`-aware backoff. Only 200 responses enter the Data Cache.
 
@@ -206,7 +213,7 @@ Animations support usability: a sliding pill on the filter control (`layoutId`),
 
 ## Testing & verification
 
-- `npm test` runs **37 unit tests**: query parsing, URL round-trips, filter/sort (nulls last, no mutation), pagination clamping, the page window, mappers on sparse payloads, sparkline timestamps, chart geometry, formatters, slices, persistence (no write on hydrate, corrupt-data recovery), and the WebSocket lifecycle (ref-counting, per-symbol notification, idle close, cancelled idle close, backoff, give-up and retry, watchdog).
+- `npm test` runs **38 unit tests**: query parsing, URL round-trips, filter/sort (nulls last, no mutation), pagination clamping, the page window, mappers on sparse payloads, sparkline timestamps, chart geometry, formatters, slices, persistence (no write on hydrate, corrupt-data recovery), and the WebSocket lifecycle (ref-counting, per-symbol notification, idle close, cancelled idle close, backoff, give-up and retry, watchdog).
 - Lint, typecheck and a production build pass, and CI runs all four on every PR.
 - **Manual smoke test** (production build, real APIs, headless Chrome at 1366px light and 375px dark): SSR of a shared filtered URL, search → URL sync, the watchlist filter, persistence across reloads, live widget editing, ISR `MISS → HIT`, invalid id → **404**, no horizontal overflow on mobile, keyboard order starting with the skip link, and **no console errors** in the main journey.
 
@@ -235,6 +242,8 @@ The build makes no upstream calls except the sitemap's, which degrades gracefull
 4. **Keeping the template's `cacheComponents: true`** was reviewed against the bundled 16.4 docs and turned off (reasons above). The docs also showed that 16.4 error boundaries receive `retry()` rather than the older `reset()`, and that `next/image` `priority` is deprecated in favour of `preload`.
 5. **`try/catch` around JSX** in Server Components was flagged by the React lint rules and refactored into a `tryLoad()` data helper.
 6. The corrupt global-volume value was trusted as-is at first and is now validated.
+7. **A Zustand store for the theme** (with its `persist` middleware) was added and then removed. A second state library next to Redux couldn't be justified for one boolean that already lives in the DOM before hydration. A 50-line `useTheme()` hook over the `<html>` class does the same job with no dependency. Sound effects on the watchlist star were dropped for the same reason: they added surprise, not usability.
+8. **The ported icon renderer** loaded every icon through `next/dynamic({ ssr: false })`. Icons were missing from the server HTML and each one was fetched as its own chunk. It was replaced with a static map (the icons are a few hundred bytes each). Unused parts of the ported `DataTable` (internal paging, header sorting, error state, default card, footer) were removed as well, since its only consumer doesn't use them.
 
 ## Known limitations / next steps
 
