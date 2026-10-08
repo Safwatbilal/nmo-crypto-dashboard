@@ -17,31 +17,38 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 72,
-          background: "linear-gradient(135deg, #0b0f1e 0%, #14245e 60%, #2e4fb8 100%)",
+          background: "radial-gradient(circle at 85% 15%, #4a3208 0%, #1a140a 55%, #0d0c0a 100%)",
           color: "white",
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 20, fontSize: 40, fontWeight: 700 }}>
-          <div
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 16,
-              background: "#4f74e8",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ width: 28, height: 28, borderRadius: 999, border: "6px solid white" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 22, fontSize: 44, fontWeight: 700 }}>
+          <svg width="72" height="72" viewBox="0 0 32 32" fill="none">
+            <defs>
+              <linearGradient id="g" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#F5B301" />
+                <stop offset="1" stopColor="#F7931A" />
+              </linearGradient>
+            </defs>
+            <rect width="32" height="32" rx="8" fill="url(#g)" />
+            <circle cx="16" cy="16" r="10.5" stroke="#fff" strokeWidth="2.2" />
+            <path d="M11.5 15.5V22M16 12V20M20.5 9.5V17.5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+            <rect x="10.3" y="17" width="2.4" height="3.6" rx=".6" fill="#fff" />
+            <rect x="14.8" y="13.4" width="2.4" height="5" rx=".6" fill="#fff" />
+            <rect x="19.3" y="11" width="2.4" height="5" rx=".6" fill="#fff" />
+          </svg>
+          <div style={{ display: "flex" }}>
+            Coin
+            <span style={{ backgroundImage: "linear-gradient(90deg, #f5b301, #f7931a)", backgroundClip: "text", color: "transparent" }}>
+              Pulse
+            </span>
           </div>
-          {siteConfig.name}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.05 }}>Real-time crypto market intelligence</div>
-          <div style={{ fontSize: 30, opacity: 0.8 }}>Live prices · Market caps · 7-day charts · Watchlist</div>
+          <div style={{ fontSize: 30, color: "#d6cbb4" }}>Live prices · Market caps · 7-day charts · Watchlist</div>
         </div>
+        <div style={{ display: "flex", height: 6, borderRadius: 999, background: "linear-gradient(90deg, #f5b301, #f7931a)" }} />
       </div>
     ),
     size,

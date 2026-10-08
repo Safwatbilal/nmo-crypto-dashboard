@@ -10,8 +10,8 @@ import { RetryPanel } from "@/components/ui/retry-panel";
 import { getGlobalStats, getMarkets, MARKET_UNIVERSE_SIZE } from "@/lib/api/coingecko";
 import { tryLoad } from "@/lib/api/try-load";
 import { parseMarketQuery } from "@/lib/market/query";
-import { JsonLd, itemListJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
-import { siteConfig } from "@/lib/seo/site";
+import { JsonLd, itemListJsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo/json-ld";
+import { openGraphDefaults, siteConfig } from "@/lib/seo/site";
 import type { MarketQuery } from "@/types/market";
 
 /**
@@ -28,11 +28,14 @@ import type { MarketQuery } from "@/types/market";
  * `dynamic = "force-dynamic"`, which would also force every fetch to `no-store`.
  */
 
+const homeTitle = `Crypto Prices Today, Market Cap & Live Charts · ${siteConfig.name}`;
+
 export const metadata: Metadata = {
-  title: { absolute: `Crypto Prices, Market Cap & Live Charts · ${siteConfig.name}` },
+  title: { absolute: homeTitle },
   description: siteConfig.description,
   alternates: { canonical: "/" },
-  openGraph: { url: "/", title: `${siteConfig.name} — ${siteConfig.tagline}` },
+  openGraph: { ...openGraphDefaults, url: "/", title: homeTitle, description: siteConfig.description },
+  twitter: { card: "summary_large_image", title: homeTitle, description: siteConfig.description },
 };
 
 // Stats and movers are non-essential: on failure they disappear and the
@@ -69,7 +72,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
 
   return (
     <div className="flex flex-col gap-8">
-      <JsonLd data={websiteJsonLd()} />
+      <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
 
       <header className="flex flex-col gap-1.5">
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Today&apos;s crypto market</h1>

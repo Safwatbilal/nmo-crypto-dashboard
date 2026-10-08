@@ -7,8 +7,11 @@ import { absoluteUrl } from "@/lib/seo/site";
 const SITEMAP_ASSET_COUNT = 100;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Prices change constantly, so "now" is an honest lastModified for every page.
+  const lastModified = new Date();
   const home: MetadataRoute.Sitemap[number] = {
     url: absoluteUrl("/"),
+    lastModified,
     changeFrequency: "always",
     priority: 1,
   };
@@ -19,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       home,
       ...coins.slice(0, SITEMAP_ASSET_COUNT).map((coin) => ({
         url: absoluteUrl(`/market/${coin.id}`),
+        lastModified,
         changeFrequency: "hourly" as const,
         priority: 0.8,
       })),

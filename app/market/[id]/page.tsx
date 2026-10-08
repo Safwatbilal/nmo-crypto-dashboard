@@ -11,7 +11,8 @@ import { TrendBadge } from "@/components/ui/trend-badge";
 import { FavoriteButton } from "@/components/watchlist/favorite-button";
 import { getAsset, REVALIDATE } from "@/lib/api/coingecko";
 import { getLiveSymbolForCoin } from "@/lib/live/symbols";
-import { JsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { JsonLd, assetPageJsonLd, breadcrumbJsonLd } from "@/lib/seo/json-ld";
+import { openGraphDefaults } from "@/lib/seo/site";
 import { formatCompactUsd, formatDate, formatDateTime, formatPercent, formatPrice } from "@/lib/utils/format";
 import type { AssetDetail } from "@/types/market";
 
@@ -62,14 +63,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: path },
-    openGraph: {
-      type: "website",
-      url: path,
-      title,
-      description,
-      images: asset.image ? [{ url: asset.image, width: 250, height: 250, alt: `${asset.name} logo` }] : undefined,
-    },
-    twitter: { card: "summary", title, description },
+    // Social image comes from the colocated opengraph-image.tsx.
+    openGraph: { ...openGraphDefaults, url: path, title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -105,10 +101,13 @@ export default async function AssetPage({ params }: Props) {
   return (
     <article className="flex flex-col gap-6">
       <JsonLd
-        data={breadcrumbJsonLd([
-          { name: "Market", path: "/" },
-          { name: asset.name, path: `/market/${asset.id}` },
-        ])}
+        data={[
+          assetPageJsonLd({ ...asset, description: describe(asset) }),
+          breadcrumbJsonLd([
+            { name: "Market", path: "/" },
+            { name: asset.name, path: `/market/${asset.id}` },
+          ]),
+        ]}
       />
 
       <nav aria-label="Breadcrumb">

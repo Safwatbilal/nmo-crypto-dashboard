@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ThemeScript } from "@/components/layout/theme-script";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { StoreProvider } from "@/components/providers/store-provider";
-import { siteConfig } from "@/lib/seo/site";
+import { isIndexable, openGraphDefaults, siteConfig } from "@/lib/seo/site";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -19,22 +19,49 @@ export const metadata: Metadata = {
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,
-  keywords: ["crypto prices", "bitcoin price", "crypto market cap", "live crypto prices", "crypto watchlist"],
+  category: "finance",
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  keywords: [
+    "crypto prices",
+    "cryptocurrency prices today",
+    "bitcoin price",
+    "ethereum price",
+    "crypto market cap",
+    "live crypto prices",
+    "crypto price chart",
+    "crypto watchlist",
+  ],
+  formatDetection: { telephone: false, address: false, email: false },
   openGraph: {
-    type: "website",
-    siteName: siteConfig.name,
-    locale: "en_US",
+    ...openGraphDefaults,
+    url: "/",
     title: siteConfig.name,
     description: siteConfig.description,
   },
-  twitter: { card: "summary_large_image" },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — ${siteConfig.tagline}`,
+    description: siteConfig.description,
+  },
+  robots: isIndexable
+    ? {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+      }
+    : { index: false, follow: false },
+  // Set GOOGLE_SITE_VERIFICATION / BING_SITE_VERIFICATION to verify ownership in Search Console / Bing Webmaster Tools.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fafafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0c10" },
+    { media: "(prefers-color-scheme: light)", color: "#fbfaf7" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d0c0a" },
   ],
 };
 
