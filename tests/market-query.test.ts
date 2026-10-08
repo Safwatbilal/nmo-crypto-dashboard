@@ -86,6 +86,11 @@ describe("getPageWindow", () => {
   it("shows first, last and neighbours with gaps", () => {
     expect(getPageWindow(1, 3)).toEqual([1, 2, 3]);
     expect(getPageWindow(6, 13)).toEqual([1, null, 5, 6, 7, null, 13]);
-    expect(getPageWindow(2, 13)).toEqual([1, 2, 3, null, 13]);
+    expect(getPageWindow(1, 1)).toEqual([1]);
+  });
+
+  it("widens the window near either end", () => {
+    expect(getPageWindow(2, 13)).toEqual([1, 2, 3, 4, null, 13]);
+    expect(getPageWindow(12, 13)).toEqual([1, null, 10, 11, 12, 13]);
   });
 });

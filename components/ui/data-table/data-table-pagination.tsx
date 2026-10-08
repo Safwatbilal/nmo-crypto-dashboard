@@ -6,12 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
 
-/** Page numbers around the current page, with gaps marked as `null`. */
-export function getPageWindow(page: number, pageCount: number, radius = 1): (number | null)[] {
-  const pages = new Set([1, pageCount]);
-  for (let p = page - radius; p <= page + radius; p++) if (p > 1 && p < pageCount) pages.add(p);
-  const sorted = [...pages].sort((a, b) => a - b);
-  return sorted.flatMap((p, i) => (i > 0 && p - sorted[i - 1] > 1 ? [null, p] : [p]));
+const MAX_VISIBLE = 5;
+
+/**
+ * Tredro page window: first and last page always, up to `MAX_VISIBLE` pages
+ * near the current one (widened at either end), gaps marked as `null`.
+ */
+export function getPageWindow(page: number, pageCount: number): (number | null)[] {
+  if (pageCount <= 1) return [1];
+
+  let start = Math.max(2, page - 1);
+  let end = Math.min(pageCount - 1, page + 1);
+  if (page <= 3) end = Math.min(pageCount - 1, MAX_VISIBLE - 1);
+  else if (page >= pageCount - 2) start = Math.max(2, pageCount - MAX_VISIBLE + 2);
+
+  const pages: (number | null)[] = [1];
+  if (start > 2) pages.push(null);
+  for (let p = start; p <= end; p++) pages.push(p);
+  if (end < pageCount - 1) pages.push(null);
+  pages.push(pageCount);
+  return pages;
 }
 
 export interface DataTablePaginationProps {
@@ -36,14 +50,14 @@ export const DataTablePagination = memo(function DataTablePagination({
   label = "Pagination",
   className,
 }: DataTablePaginationProps) {
-  const footer = cn("flex items-center justify-between gap-2 border-t border-border px-3 py-3 sm:px-4", className);
+  const footer = cn("flex items-center justify-between gap-2 border-t border-border px-4 py-4 sm:px-6", className);
 
   if (isLoading) {
     return (
       <div aria-hidden className={footer}>
         <Skeleton className="h-8 w-20" />
         <div className="flex items-center gap-1">
-          {Array.from({ length: 5 }, (_, i) => (
+          {Array.from({ length: MAX_VISIBLE }, (_, i) => (
             <Skeleton key={i} className="size-8" />
           ))}
         </div>
@@ -68,8 +82,8 @@ export const DataTablePagination = memo(function DataTablePagination({
       <ul className="flex items-center gap-1">
         {getPageWindow(page, pageCount).map((p, i) =>
           p === null ? (
-            <li key={`gap-${i}`} aria-hidden className="px-1 text-sm text-muted-foreground">
-              …
+            <li key={`gap-${i}`} aria-hidden className="flex items-center px-2 text-sm text-muted-foreground">
+              ...
             </li>
           ) : (
             <li key={p}>
@@ -79,7 +93,7 @@ export const DataTablePagination = memo(function DataTablePagination({
                 aria-current={p === page ? "page" : undefined}
                 aria-label={`Page ${p}`}
                 onClick={() => goTo(p)}
-                className={cn("tabular", p !== page && "text-muted-foreground")}
+                className="text-sm tabular"
               >
                 {p}
               </Button>

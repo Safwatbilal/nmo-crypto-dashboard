@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils/cn";
 export function Table({ className, ...props }: ComponentProps<"table">) {
   return (
     <div data-slot="table-container" className="relative w-full overflow-x-auto">
-      <table data-slot="table" className={cn("w-full caption-bottom border-collapse text-sm", className)} {...props} />
+      <table data-slot="table" className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
   );
 }
 
 export function TableHeader({ className, ...props }: ComponentProps<"thead">) {
-  return <thead data-slot="table-header" className={cn("bg-muted/40 [&_tr]:border-b", className)} {...props} />;
+  return <thead data-slot="table-header" className={cn("[&_tr]:border-b", className)} {...props} />;
 }
 
 export function TableBody({ className, ...props }: ComponentProps<"tbody">) {
@@ -31,7 +31,7 @@ export function TableFooter({ className, ...props }: ComponentProps<"tfoot">) {
 
 /** Shared row classes, so animated rows (`m.tr`) can match `TableRow`. */
 export const tableRowClassName =
-  "border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted";
+  "border-b border-border transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted";
 
 export function TableRow({ className, ...props }: ComponentProps<"tr">) {
   return <tr data-slot="table-row" className={cn(tableRowClassName, className)} {...props} />;
@@ -42,7 +42,7 @@ export function TableHead({ className, ...props }: ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-3 text-left align-middle text-xs font-medium whitespace-nowrap text-muted-foreground",
+        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
         className,
       )}
       {...props}
@@ -50,8 +50,11 @@ export function TableHead({ className, ...props }: ComponentProps<"th">) {
   );
 }
 
+/** Shared cell classes, so row-header cells (`<th scope="row">`) can match `TableCell`. */
+export const tableCellClassName = "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0";
+
 export function TableCell({ className, ...props }: ComponentProps<"td">) {
-  return <td data-slot="table-cell" className={cn("px-3 py-2 align-middle", className)} {...props} />;
+  return <td data-slot="table-cell" className={cn(tableCellClassName, className)} {...props} />;
 }
 
 export function TableCaption({ className, ...props }: ComponentProps<"caption">) {

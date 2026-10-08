@@ -17,8 +17,8 @@ export function MarketToolbar({ query, onChange }: MarketToolbarProps) {
   const sortId = useId();
 
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-      <div role="search" className="relative flex-1">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <div role="search" className="relative w-full sm:w-70">
         <label htmlFor={searchId} className="sr-only">
           Search assets by name or symbol
         </label>
@@ -32,7 +32,7 @@ export function MarketToolbar({ query, onChange }: MarketToolbarProps) {
           autoComplete="off"
           spellCheck={false}
           maxLength={60}
-          className="h-10 w-full rounded-lg border border-input bg-card pl-9 pr-9 text-sm placeholder:text-muted-foreground focus-visible:outline-2 [&::-webkit-search-cancel-button]:hidden"
+          className="h-9 w-full rounded-md border border-input bg-card pl-9 pr-9 text-sm placeholder:text-muted-foreground focus-visible:outline-2 [&::-webkit-search-cancel-button]:hidden"
         />
         {query.q && (
           <button
@@ -46,7 +46,7 @@ export function MarketToolbar({ query, onChange }: MarketToolbarProps) {
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
         <FilterTabs value={query.filter} onSelect={(filter) => onChange({ filter })} />
 
         <div className="flex flex-1 items-center gap-2 sm:flex-none">
@@ -57,7 +57,7 @@ export function MarketToolbar({ query, onChange }: MarketToolbarProps) {
             id={sortId}
             value={query.sort}
             onChange={(event) => onChange({ sort: event.target.value as SortKey })}
-            className="h-10 min-w-0 flex-1 cursor-pointer rounded-lg border border-input bg-card px-2.5 text-sm sm:flex-none"
+            className="h-9 min-w-0 flex-1 cursor-pointer rounded-md border border-input bg-card px-2.5 text-sm sm:flex-none"
           >
             {SORT_KEYS.map((key) => (
               <option key={key} value={key}>
@@ -74,7 +74,7 @@ export function MarketToolbar({ query, onChange }: MarketToolbarProps) {
 /** Segmented control; the active pill slides between options via a shared layoutId. */
 function FilterTabs({ value, onSelect }: { value: ChangeFilter; onSelect: (filter: ChangeFilter) => void }) {
   return (
-    <div role="group" aria-label="Filter assets" className="flex h-10 w-full items-center rounded-lg border border-input bg-card p-1 sm:w-auto">
+    <div role="group" aria-label="Filter assets" className="flex h-9 w-full items-center rounded-md border border-input bg-card p-0.5 sm:w-auto">
       {CHANGE_FILTERS.map((filter) => {
         const active = filter === value;
         return (
@@ -84,7 +84,7 @@ function FilterTabs({ value, onSelect }: { value: ChangeFilter; onSelect: (filte
             aria-pressed={active}
             onClick={() => onSelect(filter)}
             className={cn(
-              "relative flex-1 cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium transition-colors sm:flex-none",
+              "relative flex-1 cursor-pointer rounded-sm px-3 py-1.5 text-xs font-medium transition-colors sm:flex-none",
               active ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -92,7 +92,7 @@ function FilterTabs({ value, onSelect }: { value: ChangeFilter; onSelect: (filte
               <m.span
                 layoutId="market-filter-pill"
                 transition={{ type: "spring", stiffness: 500, damping: 38 }}
-                className="absolute inset-0 rounded-md bg-primary"
+                className="absolute inset-0 rounded-sm bg-primary"
               />
             )}
             <span className="relative">{FILTER_LABELS[filter]}</span>

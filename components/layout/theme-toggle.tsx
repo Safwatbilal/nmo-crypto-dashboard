@@ -1,42 +1,32 @@
 "use client";
 
 import { IconRenderer } from "@/assets/icons/iconRenderer";
-import type { MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { THEME_STORAGE_KEY } from "./theme-script";
+import { useThemeStore } from "@/store/use-theme-store";
 
-function applyTheme(dark: boolean) {
-  document.documentElement.classList.toggle("dark", dark);
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, dark ? "dark" : "light");
-  } catch {
-    // ignore blocked storage
-  }
-}
+const iconBase = "absolute size-[1.1rem] transition-all duration-300";
 
 /**
- * Both icons are rendered and swapped with the `dark:` variant, so the button
- * needs no React state and is identical on server and client.
+ * The icon states are driven by the `dark:` variant rather than store state, so
+ * the button renders correctly before the store hydrates and never flashes.
  */
 export function ThemeToggle() {
-  const toggle = (event: MouseEvent<HTMLButtonElement>) => {
-    const root = document.documentElement;
-    const next = !root.classList.contains("dark");
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (!document.startViewTransition || reduceMotion) {
-      applyTheme(next);
-      return;
-    }
-    root.style.setProperty("--vt-x", `${event.clientX}px`);
-    root.style.setProperty("--vt-y", `${event.clientY}px`);
-    document.startViewTransition(() => applyTheme(next));
-  };
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
 
   return (
-    <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle dark mode">
-      <IconRenderer name="morning_sun_outlined" aria-hidden className="size-[1.1rem] dark:hidden" />
-      <IconRenderer name="moon_outlined" aria-hidden className="hidden size-[1.1rem] dark:block" />
+    <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle dark mode">
+      <span className="relative flex size-[1.1rem] items-center justify-center">
+        <IconRenderer
+          name="morning_sun_outlined"
+          aria-hidden
+          className={`${iconBase} rotate-0 scale-100 opacity-100 dark:-rotate-90 dark:scale-0 dark:opacity-0`}
+        />
+        <IconRenderer
+          name="moon_outlined"
+          aria-hidden
+          className={`${iconBase} rotate-90 scale-0 opacity-0 dark:rotate-0 dark:scale-100 dark:opacity-100`}
+        />
+      </span>
     </Button>
   );
 }

@@ -4,8 +4,9 @@ import { LiveMarketWidgetLazy } from "@/components/live/live-market-widget-lazy"
 import { GlobalStats, GlobalStatsSkeleton } from "@/components/market/global-stats";
 import { MarketExplorer } from "@/components/market/market-explorer";
 import { MarketTableSkeleton } from "@/components/market/market-table";
+import { MARKET_TABLE_DESCRIPTION, MARKET_TABLE_TITLE, MARKET_TABLE_TITLE_ID } from "@/components/market/market-table-meta";
 import { TopMovers, TopMoversSkeleton } from "@/components/market/top-movers";
-import { Card, SectionHeader } from "@/components/ui/card";
+import { DataTableHeader, dataTableShellClassName } from "@/components/ui/data-table/data-table-shell";
 import { RetryPanel } from "@/components/ui/retry-panel";
 import { getGlobalStats, getMarkets, MARKET_UNIVERSE_SIZE } from "@/lib/api/coingecko";
 import { tryLoad } from "@/lib/api/try-load";
@@ -54,9 +55,10 @@ async function MarketSection({ query }: { query: MarketQuery }) {
   const coins = await tryLoad(getMarkets);
   if (!coins) {
     return (
-      <Card>
+      <div className={dataTableShellClassName}>
+        <DataTableHeader title={MARKET_TABLE_TITLE} titleId={MARKET_TABLE_TITLE_ID} description={MARKET_TABLE_DESCRIPTION} />
         <RetryPanel />
-      </Card>
+      </div>
     );
   }
   return (
@@ -98,12 +100,8 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         </section>
       </div>
 
-      <section aria-labelledby="market-heading" className="flex flex-col gap-4">
-        <SectionHeader
-          id="market-heading"
-          title="Market overview"
-          description="Search, filter and sort the market. Your view is saved in the URL, so you can share it."
-        />
+      {/* The heading is the title row inside the table shell (Tredro layout). */}
+      <section aria-labelledby={MARKET_TABLE_TITLE_ID}>
         <Suspense fallback={<MarketTableSkeleton />}>
           <MarketSection query={query} />
         </Suspense>

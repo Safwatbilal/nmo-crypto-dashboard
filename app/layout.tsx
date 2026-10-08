@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ThemeScript } from "@/components/layout/theme-script";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { StoreProvider } from "@/components/providers/store-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { isIndexable, openGraphDefaults, siteConfig } from "@/lib/seo/site";
 import "./globals.css";
 
@@ -72,6 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeScript />
       </head>
       <body className="flex min-h-dvh flex-col">
+        <NextTopLoader color="var(--primary)" height={3} showSpinner={false} shadow={false} />
         <a
           href="#main"
           className="sr-only z-50 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-3"
@@ -85,6 +88,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               {children}
             </main>
             <SiteFooter />
+            <Toaster position="bottom-right" />
           </MotionProvider>
         </StoreProvider>
       </body>

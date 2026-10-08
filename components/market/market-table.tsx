@@ -10,19 +10,34 @@ import { FavoriteButton } from "@/components/watchlist/favorite-button";
 import { formatCompactUsd, formatPrice } from "@/lib/utils/format";
 import type { MarketCoin } from "@/types/market";
 
+import { MARKET_TABLE_DESCRIPTION, MARKET_TABLE_TITLE, MARKET_TABLE_TITLE_ID } from "./market-table-meta";
+
 const NUM = "text-right tabular";
 
-/** Responsive classes per column; shared with the skeleton so the layout doesn't shift. */
+/** Classes per column (table is `lg+` only); shared with the skeleton so the layout doesn't shift. */
 const COL = {
-  favorite: "w-10 pl-2 pr-0 sm:pl-3",
-  rank: "hidden w-12 sm:table-cell",
-  asset: "pl-2 pr-2",
-  price: `${NUM} w-30 sm:w-auto`,
-  change24h: `${NUM} hidden sm:table-cell`,
-  change7d: `${NUM} hidden lg:table-cell`,
-  marketCap: `${NUM} hidden md:table-cell`,
-  volume: `${NUM} hidden pr-4 xl:table-cell`,
+  favorite: "w-10 pr-0",
+  rank: "w-12",
+  asset: undefined,
+  price: NUM,
+  change24h: NUM,
+  change7d: NUM,
+  marketCap: NUM,
+  volume: `${NUM} hidden xl:table-cell`,
 };
+
+function AssetLink({ coin }: { coin: MarketCoin }) {
+  return (
+    <Link href={`/market/${coin.id}`} className="flex min-w-0 items-center gap-3 rounded-md">
+      <CoinAvatar src={coin.image} symbol={coin.symbol} />
+      <span className="flex min-w-0 items-baseline gap-2">
+        <span className="truncate font-medium hover:underline">{coin.name}</span>
+        <span className="text-xs text-muted-foreground">{coin.symbol}</span>
+      </span>
+      <LinkPending />
+    </Link>
+  );
+}
 
 // Module-level so the column identity is stable across renders.
 const columns: ColumnDef<MarketCoin>[] = [
@@ -35,34 +50,20 @@ const columns: ColumnDef<MarketCoin>[] = [
   {
     id: "rank",
     header: "#",
-    meta: { className: COL.rank, cellClassName: "text-xs text-muted-foreground tabular" },
+    meta: { className: COL.rank, cellClassName: "text-muted-foreground tabular" },
     cell: ({ row }) => row.original.rank ?? "—",
   },
   {
     id: "asset",
     header: "Asset",
     meta: { className: COL.asset, rowHeader: true },
-    cell: ({ row: { original: coin } }) => (
-      <Link href={`/market/${coin.id}`} className="flex min-w-0 items-center gap-2.5 rounded-md sm:gap-3">
-        <CoinAvatar src={coin.image} symbol={coin.symbol} />
-        <span className="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-2">
-          <span className="truncate font-medium hover:underline">{coin.name}</span>
-          <span className="text-xs text-muted-foreground">{coin.symbol}</span>
-        </span>
-        <LinkPending />
-      </Link>
-    ),
+    cell: ({ row }) => <AssetLink coin={row.original} />,
   },
   {
     id: "price",
     header: "Price",
-    meta: { className: COL.price },
-    cell: ({ row: { original: coin } }) => (
-      <>
-        <span className="block font-medium">{formatPrice(coin.price)}</span>
-        <TrendBadge value={coin.change24h} className="text-xs sm:hidden" />
-      </>
-    ),
+    meta: { className: COL.price, cellClassName: "font-medium" },
+    cell: ({ row }) => formatPrice(row.original.price),
   },
   {
     id: "change24h",
@@ -92,8 +93,38 @@ const columns: ColumnDef<MarketCoin>[] = [
 
 const getRowId = (coin: MarketCoin) => coin.id;
 
+/** Mobile card (below `lg`): asset + star on top, then label / value lines as in Tredro's cards. */
+function renderCard(coin: MarketCoin) {
+  const lines: [string, ReactNode][] = [
+    ["Price", <span key="p" className="font-medium">{formatPrice(coin.price)}</span>],
+    ["24h", <TrendBadge key="24" value={coin.change24h} />],
+    ["7d", <TrendBadge key="7" value={coin.change7d} />],
+    ["Market cap", formatCompactUsd(coin.marketCap)],
+  ];
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
+        <AssetLink coin={coin} />
+        <FavoriteButton id={coin.id} name={coin.name} />
+      </div>
+      <dl className="flex flex-col gap-1.5">
+        {lines.map(([label, value]) => (
+          <div key={label} className="flex items-center justify-between gap-2">
+            <dt className="shrink-0 text-muted-foreground">{label}</dt>
+            <dd className="text-right tabular">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
 interface MarketTableProps {
   coins: MarketCoin[];
+  /** Total matching assets, shown in the title badge. */
+  total: number;
+  toolbar: ReactNode;
+  dimmed?: boolean;
   animateEntry: boolean;
   caption: string;
   isLoading?: boolean;
@@ -105,11 +136,14 @@ interface MarketTableProps {
 }
 
 /**
- * Memoised so urgent renders of the explorer (each keystroke in the search
- * box) skip the table; it only re-renders when the deferred result page changes.
+ * Memoised; it re-renders when the toolbar element or the deferred result page
+ * changes, and its rows only for the latter.
  */
 export const MarketTable = memo(function MarketTable({
   coins,
+  total,
+  toolbar,
+  dimmed,
   animateEntry,
   caption,
   isLoading,
@@ -125,10 +159,17 @@ export const MarketTable = memo(function MarketTable({
       data={coins}
       getRowId={getRowId}
       caption={caption}
+      title={MARKET_TABLE_TITLE}
+      titleId={MARKET_TABLE_TITLE_ID}
+      titleBadge={`${total} ${total === 1 ? "asset" : "assets"}`}
+      description={MARKET_TABLE_DESCRIPTION}
+      toolbar={toolbar}
+      dimmed={dimmed}
       isLoading={isLoading}
       loadingRows={5}
       emptyState={emptyState}
       animateRows={animateEntry}
+      renderCard={renderCard}
       pagination={{ page, pageCount, onPageChange }}
       paginationLabel="Market pages"
       className={className}
@@ -137,5 +178,14 @@ export const MarketTable = memo(function MarketTable({
 });
 
 export function MarketTableSkeleton({ rows = 10 }: { rows?: number }) {
-  return <DataTableSkeleton rows={rows} columns={Object.values(COL)} />;
+  return (
+    <DataTableSkeleton
+      rows={rows}
+      columns={Object.values(COL)}
+      title={MARKET_TABLE_TITLE}
+      titleId={MARKET_TABLE_TITLE_ID}
+      description={MARKET_TABLE_DESCRIPTION}
+      toolbar
+    />
+  );
 }

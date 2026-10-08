@@ -2,12 +2,16 @@
 
 import { IconRenderer } from "@/assets/icons/iconRenderer";
 import * as m from "motion/react-m";
+import { toast } from "sonner";
 import {
+  MAX_WATCHLIST_SIZE,
   selectIsInWatchlist,
   selectIsWatchlistHydrated,
+  selectWatchlistCount,
   watchlistToggled,
 } from "@/store/features/watchlistSlice";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { playRemove, playTick } from "@/lib/audio/tick";
 import { cn } from "@/lib/utils/cn";
 
 interface FavoriteButtonProps {
@@ -27,12 +31,30 @@ export function FavoriteButton({ id, name, withLabel = false, className }: Favor
   const dispatch = useAppDispatch();
   const active = useAppSelector((state) => selectIsInWatchlist(state, id));
   const hydrated = useAppSelector(selectIsWatchlistHydrated);
+  const full = useAppSelector((state) => selectWatchlistCount(state) >= MAX_WATCHLIST_SIZE);
+
+  const handleClick = () => {
+    if (!active && full) {
+      toast.error("Watchlist is full", {
+        description: `You can track up to ${MAX_WATCHLIST_SIZE} assets. Remove one to add ${name}.`,
+      });
+      return;
+    }
+    dispatch(watchlistToggled(id));
+    if (active) {
+      playRemove();
+      toast(`${name} removed from watchlist`);
+    } else {
+      playTick();
+      toast.success(`${name} added to watchlist`);
+    }
+  };
 
   return (
     <m.button
       type="button"
       whileTap={{ scale: 0.88 }}
-      onClick={() => dispatch(watchlistToggled(id))}
+      onClick={handleClick}
       disabled={!hydrated}
       aria-pressed={active}
       aria-label={withLabel ? undefined : `Watchlist ${name}`}
