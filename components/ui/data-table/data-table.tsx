@@ -165,7 +165,7 @@ export function DataTable<TData, TValue>({
         ) : (
           <ul className="flex flex-col gap-3">
             {rows.map((row) => (
-              <li key={row.id} className={dataTableCardClassName}>
+              <li key={row.id} className={cn("relative", dataTableCardClassName)}>
                 {renderCard(row.original)}
               </li>
             ))}

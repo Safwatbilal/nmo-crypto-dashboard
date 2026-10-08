@@ -34,6 +34,45 @@ function LiveOrStaticPrice({ coin }: { coin: MarketCoin }) {
   return <span className="text-lg font-semibold tabular">{formatPrice(coin.price)}</span>;
 }
 
+/* Skeleton pieces mirror the loaded card layout so nothing shifts when data arrives. */
+function CoinIdentitySkeleton() {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <Skeleton className="size-9 shrink-0 rounded-full" />
+      <div className="flex flex-col gap-1.5">
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-3 w-20" />
+      </div>
+    </div>
+  );
+}
+
+function CoinStatsSkeleton() {
+  return (
+    <div className="mt-auto flex items-end justify-between gap-2">
+      <div className="flex flex-col gap-1.5">
+        <Skeleton className="h-6 w-24" />
+        <Skeleton className="h-3 w-28" />
+      </div>
+      <Skeleton className="h-6 w-16 rounded-full" />
+    </div>
+  );
+}
+
+function WatchlistCardSkeleton() {
+  return (
+    <li>
+      <Card className="flex h-full flex-col gap-3 p-4">
+        <div className="flex items-start justify-between gap-2">
+          <CoinIdentitySkeleton />
+          <Skeleton className="size-8 rounded-md" />
+        </div>
+        <CoinStatsSkeleton />
+      </Card>
+    </li>
+  );
+}
+
 interface WatchlistCardProps {
   id: string;
   /** `undefined` while loading, `null` when the provider has no data. */
@@ -70,10 +109,7 @@ function WatchlistCard({ id, coin, onRemove, ref }: WatchlistCardProps) {
               <span className="font-medium text-foreground">{id}</span> — data unavailable
             </span>
           ) : (
-            <div className="flex items-center gap-3">
-              <Skeleton className="size-9 rounded-full" />
-              <Skeleton className="h-4 w-24" />
-            </div>
+            <CoinIdentitySkeleton />
           )}
           <Button
             variant="ghost"
@@ -85,6 +121,7 @@ function WatchlistCard({ id, coin, onRemove, ref }: WatchlistCardProps) {
             <IconRenderer name="bin_outlined" aria-hidden className="size-4" />
           </Button>
         </div>
+        {coin === undefined && <CoinStatsSkeleton />}
         {coin && (
           <div className="mt-auto flex items-end justify-between gap-2">
             <div className="flex flex-col">
@@ -117,13 +154,17 @@ export function WatchlistView() {
 
   if (!hydrated) {
     return (
-      <ul aria-busy="true" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 3 }, (_, i) => (
-          <li key={i}>
-            <Skeleton className="h-36 rounded-2xl" />
-          </li>
-        ))}
-      </ul>
+      <div aria-busy="true" aria-label="Loading watchlist" className="flex flex-col gap-4">
+        <div className="flex h-8 items-center justify-between gap-2">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-8 w-20 rounded-md" />
+        </div>
+        <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <WatchlistCardSkeleton key={i} />
+          ))}
+        </ul>
+      </div>
     );
   }
 

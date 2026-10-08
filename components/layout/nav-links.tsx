@@ -17,7 +17,11 @@ const NAV_ITEMS = [
 function WatchlistCount() {
   const count = useAppSelector(selectWatchlistCount);
   const hydrated = useAppSelector(selectIsWatchlistHydrated);
-  if (!hydrated || count === 0) return null;
+  // Same footprint as the badge, so the label doesn't shift when the count appears.
+  if (!hydrated) {
+    return <span aria-hidden className="ml-0.5 h-5 w-5 animate-pulse rounded-full bg-muted" />;
+  }
+  if (count === 0) return null;
   return (
     <span className="ml-0.5 rounded-full bg-primary px-1.5 text-[11px] font-semibold leading-5 text-primary-foreground tabular">
       {count}

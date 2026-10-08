@@ -6,6 +6,7 @@ import { CoinAvatar } from "@/components/ui/coin-avatar";
 import { DataTable, DataTableSkeleton, type ColumnDef } from "@/components/ui/data-table";
 import { LinkPending } from "@/components/ui/link-pending";
 import { TrendBadge } from "@/components/ui/trend-badge";
+import { cn } from "@/lib/utils/cn";
 import { FavoriteButton } from "@/components/watchlist/favorite-button";
 import { formatCompactUsd, formatPrice } from "@/lib/utils/format";
 import type { MarketCoin } from "@/types/market";
@@ -26,9 +27,16 @@ const COL = {
   volume: `${NUM} hidden xl:table-cell`,
 };
 
-function AssetLink({ coin }: { coin: MarketCoin }) {
+/** `stretched` extends the hit area over the nearest positioned ancestor (the mobile card). */
+function AssetLink({ coin, stretched = false }: { coin: MarketCoin; stretched?: boolean }) {
   return (
-    <Link href={`/market/${coin.id}`} className="flex min-w-0 items-center gap-3 rounded-md">
+    <Link
+      href={`/market/${coin.id}`}
+      className={cn(
+        "flex min-w-0 items-center gap-3 rounded-md",
+        stretched && "after:absolute after:inset-0 after:rounded-xl after:content-['']",
+      )}
+    >
       <CoinAvatar src={coin.image} symbol={coin.symbol} />
       <span className="flex min-w-0 items-baseline gap-2">
         <span className="truncate font-medium hover:underline">{coin.name}</span>
@@ -104,8 +112,8 @@ function renderCard(coin: MarketCoin) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2 border-b border-border pb-2">
-        <AssetLink coin={coin} />
-        <FavoriteButton id={coin.id} name={coin.name} />
+        <AssetLink coin={coin} stretched />
+        <FavoriteButton id={coin.id} name={coin.name} className="relative z-10" />
       </div>
       <dl className="flex flex-col gap-1.5">
         {lines.map(([label, value]) => (
