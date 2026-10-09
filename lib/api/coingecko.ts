@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 import type { CoinGeckoCoin, CoinGeckoGlobal, CoinGeckoMarket } from "@/types/coingecko";
 import type { AssetDetail, GlobalStats, MarketCoin } from "@/types/market";
+import { serverEnv } from "@/lib/env.server";
 import { fetchJson } from "./http";
 import { mapAssetDetail, mapGlobalStats, mapMarketCoin } from "./mappers";
 
@@ -12,8 +13,8 @@ import { mapAssetDetail, mapGlobalStats, mapMarketCoin } from "./mappers";
  * free-tier rate limit is shared by all visitors instead of hit per request.
  */
 
-const BASE_URL = process.env.COINGECKO_API_BASE_URL ?? "https://api.coingecko.com/api/v3";
-const API_KEY = process.env.COINGECKO_API_KEY;
+const BASE_URL = serverEnv.coingeckoApiBaseUrl;
+const API_KEY = serverEnv.coingeckoApiKey;
 
 /** Revalidation windows (seconds) — see README → "Caching". */
 export const REVALIDATE = {

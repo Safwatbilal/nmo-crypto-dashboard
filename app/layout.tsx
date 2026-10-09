@@ -7,6 +7,7 @@ import { ThemeScript } from "@/components/layout/theme-script";
 import { MotionProvider } from "@/components/providers/motion-provider";
 import { StoreProvider } from "@/components/providers/store-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { serverEnv } from "@/lib/env.server";
 import { isIndexable, openGraphDefaults, siteConfig } from "@/lib/seo/site";
 import "./globals.css";
 
@@ -55,8 +56,8 @@ export const metadata: Metadata = {
     : { index: false, follow: false },
   // Set GOOGLE_SITE_VERIFICATION / BING_SITE_VERIFICATION to verify ownership in Search Console / Bing Webmaster Tools.
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
-    other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
+    google: serverEnv.googleSiteVerification,
+    other: serverEnv.bingSiteVerification ? { "msvalidate.01": serverEnv.bingSiteVerification } : undefined,
   },
 };
 

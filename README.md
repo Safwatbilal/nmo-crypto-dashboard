@@ -42,14 +42,14 @@ Requires Node 20.9+ (CI uses Node 24).
 
 ## Environment variables
 
-All optional; no secrets are committed (see `.env.example`).
+Copy `.env.example` to `.env.local`. All config lives there — the code has no hardcoded fallbacks and reads it only through `lib/env.ts` (public) and `lib/env.server.ts` (server only). Required variables throw a clear error when missing; no secrets are committed.
 
 | Variable | Scope | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | public | Absolute base for canonical URLs, OG, sitemap. Falls back to the production domain (`https://nmo-crypto-dashboard.vercel.app`) in production/Vercel builds, otherwise `http://localhost:3000`. Vercel preview deployments are always `noindex`. |
-| `COINGECKO_API_KEY` | **server only** | Free CoinGecko *Demo* key, sent as `x-cg-demo-api-key`. Raises the rate limit; never reaches the browser. |
-| `COINGECKO_API_BASE_URL` | server only | Override the REST base URL. |
-| `NEXT_PUBLIC_BINANCE_WS_URL` | public | WebSocket endpoint (default `wss://data-stream.binance.vision/ws`). |
+| `NEXT_PUBLIC_SITE_URL` | public, **required** | Absolute base for canonical URLs, OG, sitemap (`http://localhost:3000` locally, `https://nmo-crypto-dashboard.vercel.app` in production). Vercel preview deployments are always `noindex`. |
+| `COINGECKO_API_BASE_URL` | server only, **required** | CoinGecko REST base URL (`https://api.coingecko.com/api/v3`). |
+| `NEXT_PUBLIC_BINANCE_WS_URL` | public, **required** | WebSocket endpoint (`wss://data-stream.binance.vision/ws`). |
+| `COINGECKO_API_KEY` | **server only** | Optional free CoinGecko *Demo* key, sent as `x-cg-demo-api-key`. Raises the rate limit; never reaches the browser. |
 | `GOOGLE_SITE_VERIFICATION` | server only | Google Search Console "HTML tag" verification value (not a secret). |
 | `BING_SITE_VERIFICATION` | server only | Bing Webmaster Tools `msvalidate.01` value (not a secret). |
 

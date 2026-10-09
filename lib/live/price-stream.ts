@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import type { BinanceMiniTicker, ConnectionStatus, LiveTicker } from "@/types/live";
 
 /**
@@ -311,7 +312,7 @@ let instance: PriceStream | null = null;
 /** Browser-only singleton. */
 export function getPriceStream(): PriceStream {
   instance ??= new PriceStream({
-    url: process.env.NEXT_PUBLIC_BINANCE_WS_URL ?? "wss://data-stream.binance.vision/ws",
+    url: env.binanceWsUrl,
   });
   return instance;
 }
