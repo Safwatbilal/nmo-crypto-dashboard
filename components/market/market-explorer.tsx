@@ -111,7 +111,7 @@ export function MarketExplorer({ coins, initialQuery }: MarketExplorerProps) {
       ? "No matching assets"
       : `Showing ${firstItem}–${firstItem + pageData.items.length - 1} of ${pageData.total} assets`;
 
-  // The toolbar lives inside the table shell (Tredro layout), so the table
+  // The toolbar lives inside the table shell, so the table
   // shell re-renders per keystroke; its rows are memoised and skip that work.
   const toolbar = useMemo(() => <MarketToolbar query={query} onChange={updateQuery} />, [query, updateQuery]);
 

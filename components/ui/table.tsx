@@ -1,7 +1,7 @@
 import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils/cn";
 
-/** Table primitives shared with the Tredro dashboard (shadcn structure, LTR). */
+/** Table primitives (shadcn structure). */
 
 export function Table({ className, ...props }: ComponentProps<"table">) {
   return (

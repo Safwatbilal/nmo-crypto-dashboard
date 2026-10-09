@@ -101,7 +101,7 @@ const columns: ColumnDef<MarketCoin>[] = [
 
 const getRowId = (coin: MarketCoin) => coin.id;
 
-/** Mobile card (below `lg`): asset + star on top, then label / value lines as in Tredro's cards. */
+/** Mobile card (below `lg`): asset + star on top, then label / value lines. */
 function renderCard(coin: MarketCoin) {
   const lines: [string, ReactNode][] = [
     ["Price", <span key="p" className="font-medium">{formatPrice(coin.price)}</span>],

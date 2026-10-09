@@ -14,7 +14,7 @@ interface StatePanelProps {
   role?: "status" | "alert";
 }
 
-/** Shared empty / error / not-found presentation (Tredro EmptyState pattern). */
+/** Shared empty / error / not-found presentation. */
 export function StatePanel({
   icon,
   title,

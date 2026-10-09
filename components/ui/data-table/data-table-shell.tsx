@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 
-/** Outer frame of the Tredro list: one bordered box holding title, toolbar, rows and pager. */
+/** Outer frame of a list: one bordered box holding title, toolbar, rows and pager. */
 export const dataTableShellClassName = "overflow-hidden rounded-md border border-border";
 
-/** Mobile row card (Tredro `Card` + `CardContent p-4`). */
+/** Mobile row card. */
 export const dataTableCardClassName = "rounded-xl bg-card p-4 text-sm text-card-foreground ring-1 ring-foreground/10";
 
 interface DataTableHeaderProps {
@@ -14,7 +14,7 @@ interface DataTableHeaderProps {
   description?: ReactNode;
 }
 
-/** Title row with a count badge, as at the top of Tredro's list pages. No hooks — safe in server fallbacks. */
+/** Title row with a count badge. No hooks — safe in server fallbacks. */
 export function DataTableHeader({ title, titleId, badge, description }: DataTableHeaderProps) {
   return (
     <div className="border-b border-border px-4 py-6 sm:px-6">

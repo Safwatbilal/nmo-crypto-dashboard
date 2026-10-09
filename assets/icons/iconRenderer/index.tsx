@@ -1,4 +1,3 @@
-// Ported from tredro-dashborad/assets/icons/iconRenderer
 import type { ComponentType, SVGProps } from 'react'
 import { ArrowLeftOutlined } from '../arrow_left_outlined'
 import { ArrowRightOutlined } from '../arrow_right_outlined'

@@ -151,7 +151,7 @@
   }
 }
 
-/* Theme switch: circular wave from a screen corner (same effect as Tredro). */
+/* Theme switch: circular wave from a screen corner. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -173,7 +173,7 @@
   }
 }
 
-/* Thin themed scrollbars (same as Tredro). */
+/* Thin themed scrollbars. */
 ::-webkit-scrollbar {
   width: 4px;
 }

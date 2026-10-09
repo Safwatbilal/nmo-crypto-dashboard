@@ -34,7 +34,7 @@ export interface DataTableProps<TData, TValue> {
   /** Accessible table caption (visually hidden). */
   caption?: string;
 
-  /** Title row at the top of the shell (Tredro list header). */
+  /** Title row at the top of the shell. */
   title?: ReactNode;
   /** `id` for the title heading, so a surrounding section can be `aria-labelledby` it. */
   titleId?: string;
@@ -64,7 +64,7 @@ export interface DataTableProps<TData, TValue> {
 }
 
 /**
- * Data table ported from the Tredro dashboard: a bordered shell with an
+ * Data table: a bordered shell with an
  * optional title + toolbar, the table on `lg+` and cards below it, loading /
  * empty states and a footer pager. TanStack Table supplies the headless
  * column/row model; column `meta` (see `types/tanstack-table.d.ts`) controls

@@ -14,7 +14,7 @@ interface StatCardProps {
   index: number;
 }
 
-/** KPI tile (Tredro OverviewStatCard pattern). CSS-only entrance: no JS needed. */
+/** KPI tile. CSS-only entrance: no JS needed. */
 function StatCard({ icon, label, value, change, index }: StatCardProps) {
   return (
     <Card

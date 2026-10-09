@@ -22,7 +22,7 @@ A compact, production-minded crypto dashboard: discover the top 250 assets, sear
 - **Tailwind CSS v4** with design tokens (oklch palette, light/dark), `cva` for component variants
 - **TanStack Table** (headless) behind a presentational `DataTable` (column/row model; responsive table ↔ cards). Filtering, sorting and paging stay in `lib/market/query.ts` because the URL owns them.
 - **sonner** toasts for watchlist feedback · **nextjs-toploader** navigation progress bar
-- Tredro `IconRenderer` icons (`assets/icons`), `next/font` (Geist), `next/image`
+- Inline SVG icon components behind a typed `IconRenderer` (`assets/icons`), `next/font` (Geist), `next/image`
 - **Vitest** unit tests · ESLint (`eslint-config-next`, React Compiler lint rules) · GitHub Actions CI
 
 ## Local setup
@@ -87,15 +87,38 @@ tests/                   Vitest unit tests
 
 ### Data flow
 
-```
-                  ┌───────────── server ─────────────┐                 ┌──────────── browser ─────────────┐
-CoinGecko REST ─► lib/api (fetch + Data Cache 60/300s) ─► RSC pages ──► HTML + props ─► Client components
-                       │  mappers: raw → typed domain                       │                │
-                       └─► /api/markets (watchlist BFF) ◄──── fetch ───────┘   Redux: watchlist ids,
-                                                                                live symbols (+localStorage)
-Binance WS  ──────────────────────────────────────────────────────────────► PriceStream (singleton,
-                                                                             outside React) ──► useSyncExternalStore
-                                                                                                 per price cell
+```mermaid
+flowchart LR
+  subgraph External
+    CG[CoinGecko REST]
+    BN[Binance WebSocket]
+  end
+
+  subgraph Server["Server (Next.js)"]
+    API["lib/api<br/>fetch + retry + Data Cache 60s / 300s<br/>raw → typed domain mappers"]
+    HOME["/ — SSR<br/>RSC page"]
+    ASSET["/market/[id] — ISR<br/>revalidate 300s"]
+    BFF["/api/markets<br/>watchlist BFF"]
+  end
+
+  subgraph Browser
+    CC["Client components<br/>(explorer, favorites, watchlist)"]
+    RX[("Redux<br/>watchlist ids · live symbols<br/>↔ localStorage")]
+    PS["PriceStream singleton<br/>(outside React, ref-counted)"]
+    CELL["Price cells<br/>useSyncExternalStore"]
+  end
+
+  CG --> API
+  API --> HOME
+  API --> ASSET
+  API --> BFF
+  HOME -- "HTML + props" --> CC
+  ASSET -- "HTML + props" --> CC
+  CC <--> RX
+  CC -- "fetch missing ids" --> BFF
+  RX -- "selected symbols" --> PS
+  BN --> PS
+  PS -- "per-symbol ticks" --> CELL
 ```
 
 - **What runs on the server:** all CoinGecko access (API key stays private, responses are shared through the Data Cache), HTML for the overview/asset pages, the SVG chart, metadata and JSON-LD.
@@ -179,6 +202,24 @@ Other measures:
 - **Payload:** upstream responses are mapped to slim domain objects before reaching client props.
 - Server-side `fetch` retries 429/5xx once with `Retry-After`-aware backoff. Only 200 responses enter the Data Cache.
 
+### Lighthouse
+
+Measured with Lighthouse 13.5: desktop preset, and the default mobile profile (Moto G Power emulation, simulated slow 4G, 4× CPU throttling).
+
+| Page | Profile | Build | Perf. | A11y | Best pr. | SEO | LCP | CLS | TBT |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/` | Desktop | Vercel | 99 | 100 | 100 | 100 | 0.7 s | 0 | 0 ms |
+| `/market/bitcoin` | Desktop | Vercel | 98 | 100 | 100 | 100 | 0.7 s | 0 | 40 ms |
+| `/` | Mobile | Vercel, before CLS fix | 73 | 100 | 100 | 100 | 2.0 s | 0.134 | 830 ms |
+| `/` | Mobile | local `next start`, after fix | 80–84 | 100 | 100 | 100 | 3.7 s\* | 0 | 270–340 ms |
+| `/market/bitcoin` | Mobile | local `next start`, after fix | 90–92 | 100 | 100 | 100 | 3.4 s\* | 0.001 | 30–130 ms |
+
+\* Local runs have no CDN, so LCP is higher than on Vercel (2.0 s there).
+
+The first mobile audit of `/` found **CLS 0.13**, caused entirely by the lazily loaded live widget: its skeleton was shorter than the real widget on phones (the "Follow more" chips wrap to three rows, the header wrapped once the status pill appeared, and the price placeholder was shorter than a rendered price). Fixes: the skeleton now reuses the real header (`LiveWidgetHeader`) and mirrors card heights and chip rows, the status pill moved to the title row so its label width can't change the header height, and the price placeholder reserves a full line box. All widths from 320px to 1024px now render the skeleton and the real widget at identical heights, and **CLS dropped to 0**.
+
+The remaining mobile cost is TBT from hydrating React + Redux + Motion on a throttled CPU. Next steps: defer the live widget until idle/visible, and trim the explorer's client bundle.
+
 ## SEO
 
 - **Metadata API:** root defaults (`metadataBase`, title template, OG, Twitter), a unique title, description and **canonical** URL on every page.
@@ -201,7 +242,7 @@ Other measures:
 
 ## Motion
 
-Animations support usability: a sliding pill on the filter control (`layoutId`), a spring on the favorite star, entry fades when rows change *after* user interaction (server-rendered rows are never hidden waiting for JS, which protects LCP), add/remove animations for live cards and watchlist cards (`AnimatePresence popLayout`), CSS-only stat card entrance, a price flash, and the Tredro-style circular theme reveal through the View Transitions API.
+Animations support usability: a sliding pill on the filter control (`layoutId`), a spring on the favorite star, entry fades when rows change *after* user interaction (server-rendered rows are never hidden waiting for JS, which protects LCP), add/remove animations for live cards and watchlist cards (`AnimatePresence popLayout`), CSS-only stat card entrance, a price flash, and a circular theme reveal through the View Transitions API.
 
 ## Resilience
 
@@ -243,7 +284,7 @@ The build makes no upstream calls except the sitemap's, which degrades gracefull
 5. **`try/catch` around JSX** in Server Components was flagged by the React lint rules and refactored into a `tryLoad()` data helper.
 6. The corrupt global-volume value was trusted as-is at first and is now validated.
 7. **A Zustand store for the theme** (with its `persist` middleware) was added and then removed. A second state library next to Redux couldn't be justified for one boolean that already lives in the DOM before hydration. A 50-line `useTheme()` hook over the `<html>` class does the same job with no dependency. Sound effects on the watchlist star were dropped for the same reason: they added surprise, not usability.
-8. **The ported icon renderer** loaded every icon through `next/dynamic({ ssr: false })`. Icons were missing from the server HTML and each one was fetched as its own chunk. It was replaced with a static map (the icons are a few hundred bytes each). Unused parts of the ported `DataTable` (internal paging, header sorting, error state, default card, footer) were removed as well, since its only consumer doesn't use them.
+8. **The first icon renderer** loaded every icon through `next/dynamic({ ssr: false })`. Icons were missing from the server HTML and each one was fetched as its own chunk. It was replaced with a static map (the icons are a few hundred bytes each). Unused parts of the generic `DataTable` (internal paging, header sorting, error state, default card, footer) were removed as well, since its only consumer doesn't use them.
 
 ## Known limitations / next steps
 

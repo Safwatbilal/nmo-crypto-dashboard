@@ -100,7 +100,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         </section>
       </div>
 
-      {/* The heading is the title row inside the table shell (Tredro layout). */}
+      {/* The heading is the title row inside the table shell. */}
       <section aria-labelledby={MARKET_TABLE_TITLE_ID}>
         <Suspense fallback={<MarketTableSkeleton />}>
           <MarketSection query={query} />

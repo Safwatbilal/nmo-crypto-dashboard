@@ -25,7 +25,14 @@ export function LivePrice({ ticker, className }: { ticker: LiveTicker | undefine
   }
 
   if (!ticker) {
-    return <span className={cn("inline-block h-[1em] w-20 animate-pulse rounded bg-muted align-middle", className)} />;
+    // The zero-width space gives the placeholder the same line box as the
+    // price, so the first tick doesn't change the height (no layout shift).
+    return (
+      <span aria-hidden className={cn("inline-flex w-fit items-center", className)}>
+        <span className="h-[1em] w-20 animate-pulse rounded bg-muted" />
+        &#8203;
+      </span>
+    );
   }
 
   return (

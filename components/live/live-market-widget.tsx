@@ -9,6 +9,7 @@ import { liveSymbolToggled, selectLiveSymbols } from "@/store/features/liveSlice
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ConnectionStatus } from "./connection-status";
 import { LiveTickerCard } from "./live-ticker-card";
+import { LiveWidgetHeader } from "./live-widget-header";
 
 /**
  * Re-renders only when the followed symbol list changes. Ticks are consumed
@@ -24,16 +25,7 @@ export default function LiveMarketWidget() {
 
   return (
     <Card className="flex h-full flex-col gap-4 p-4 sm:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <h2 className="flex items-center gap-2 font-semibold tracking-tight">
-            <IconRenderer name="live_outlined" aria-hidden className="size-4 text-primary" />
-            Live prices
-          </h2>
-          <p className="text-xs text-muted-foreground">Binance spot · USDT pairs · updates every second</p>
-        </div>
-        <ConnectionStatus />
-      </div>
+      <LiveWidgetHeader status={<ConnectionStatus />} />
 
       {symbols.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">

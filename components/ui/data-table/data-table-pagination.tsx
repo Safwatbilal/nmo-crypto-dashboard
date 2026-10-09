@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils/cn";
 const MAX_VISIBLE = 5;
 
 /**
- * Tredro page window: first and last page always, up to `MAX_VISIBLE` pages
+ * Page window: first and last page always, up to `MAX_VISIBLE` pages
  * near the current one (widened at either end), gaps marked as `null`.
  */
 export function getPageWindow(page: number, pageCount: number): (number | null)[] {
@@ -39,7 +39,7 @@ export interface DataTablePaginationProps {
 }
 
 /**
- * Tredro-style footer pager: Previous / page numbers / Next.
+ * Footer pager: Previous / page numbers / Next.
  * Memoised — pass a stable `onPageChange` so it skips re-renders while the user types.
  */
 export const DataTablePagination = memo(function DataTablePagination({
