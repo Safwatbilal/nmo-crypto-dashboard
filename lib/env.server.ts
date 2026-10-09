@@ -11,8 +11,4 @@ export const serverEnv = {
   },
   /** Optional CoinGecko "Demo" API key (raises the public rate limit). */
   coingeckoApiKey: process.env.COINGECKO_API_KEY || undefined,
-
-  /** Optional search engine ownership verification meta tag values. */
-  googleSiteVerification: process.env.GOOGLE_SITE_VERIFICATION || undefined,
-  bingSiteVerification: process.env.BING_SITE_VERIFICATION || undefined,
 };

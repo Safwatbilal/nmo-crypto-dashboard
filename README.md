@@ -50,9 +50,6 @@ Copy `.env.example` to `.env.local`. All config lives there — the code has no 
 | `COINGECKO_API_BASE_URL` | server only, **required** | CoinGecko REST base URL (`https://api.coingecko.com/api/v3`). |
 | `NEXT_PUBLIC_BINANCE_WS_URL` | public, **required** | WebSocket endpoint (`wss://data-stream.binance.vision/ws`). |
 | `COINGECKO_API_KEY` | **server only** | Optional free CoinGecko *Demo* key, sent as `x-cg-demo-api-key`. Raises the rate limit; never reaches the browser. |
-| `GOOGLE_SITE_VERIFICATION` | server only | Google Search Console "HTML tag" verification value (not a secret). |
-| `BING_SITE_VERIFICATION` | server only | Bing Webmaster Tools `msvalidate.01` value (not a secret). |
-
 ## Data sources
 
 - **REST — CoinGecko public API v3**: `/coins/markets` (top 250, plus by-ids for the watchlist), `/global`, `/coins/{id}` (with `sparkline=true` — one call gives stats *and* the 7-day chart).
