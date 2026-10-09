@@ -3,14 +3,12 @@
 import { IconRenderer } from "@/assets/icons/iconRenderer";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MARKET_TABLE_TITLE_ID } from "@/components/market/market-table-meta";
 import { selectIsWatchlistHydrated, selectWatchlistCount } from "@/store/features/watchlistSlice";
 import { useAppSelector } from "@/store/hooks";
 import { cn } from "@/lib/utils/cn";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: "globe_outlined" as const, match: (p: string) => p === "/" },
-  { href: `/#${MARKET_TABLE_TITLE_ID}`, label: "Market", icon: "sales_outlined" as const, match: (p: string) => p.startsWith("/market") },
+  { href: "/", label: "Market", icon: "sales_outlined" as const, match: (p: string) => p === "/" || p.startsWith("/market") },
   { href: "/watchlist", label: "Watchlist", icon: "star_outlined" as const, match: (p: string) => p.startsWith("/watchlist") },
 ] as const;
 
